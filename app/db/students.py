@@ -1,5 +1,6 @@
 from app.db.utils import serialize_item, serialize_items
 from app.db import DB
+from pymongo.results import DeleteResult
 
 # Student Collection Name
 STUDENT_COLLECTION = "students"
@@ -53,3 +54,12 @@ class StudentResource:
             return
 
         self.collection.insert_many(students)
+
+    def delete_student(self, email: str) -> DeleteResult | None:
+        # Check existence first so the API can return 404 cleanly
+        student_record = self.get_student_by_email(email)
+        if student_record is None:
+            return None
+
+        result = self.collection.delete_one({EMAIL: email})
+        return result   
